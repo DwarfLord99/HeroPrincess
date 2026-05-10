@@ -8,7 +8,6 @@ public class MovementComponent : MonoBehaviour
     [Header("Stats")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpHeight = 2f;
-    [SerializeField] private float gravity = -9.81f;
 
     private Vector3 velocity;
 
@@ -18,31 +17,38 @@ public class MovementComponent : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+    void Update()
+    {
+        ApplyGravity();
+    }
+
     public void Move(Vector2 input)
     {
         Vector3 move = new Vector3(input.x, 0, input.y);
-        characterController.Move(move * moveSpeed * Time.deltaTime);
 
-        velocity = characterController.velocity;
+        move = transform.TransformDirection(move); // Convert local movement to world space
+        velocity.x = move.x * moveSpeed;
+        velocity.z = move.z * moveSpeed;
 
         animator.SetFloat("XSpeed", velocity.x);
         animator.SetFloat("YSpeed", velocity.z);
-        ApplyGravity();
     }
 
     void ApplyGravity()
     {
-        if (characterController.isGrounded && velocity.y < 0)
+        if (characterController.isGrounded)
         {
-            velocity.y = -2f; // Small negative value to keep the character grounded
+            if (velocity.y < 0)
+                velocity.y = -2f; // Small negative value to keep the character grounded
+            animator.SetBool("IsGrounded", true);
         }
         else
         {
             // Apply gravity when not grounded
-            velocity.y += gravity * Time.deltaTime;
+            velocity.y += Physics.gravity.y * Time.deltaTime;
+            animator.SetBool("IsGrounded", false);
         }
 
-        velocity.y += Physics.gravity.y * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);
     }
 
@@ -50,6 +56,7 @@ public class MovementComponent : MonoBehaviour
     {
         if (characterController.isGrounded)
         {
+            animator.SetTrigger("IsJumping");
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
         }
     }
