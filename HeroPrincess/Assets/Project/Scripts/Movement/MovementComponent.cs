@@ -3,6 +3,7 @@ using UnityEngine;
 public class MovementComponent : MonoBehaviour
 {
     private CharacterController characterController;
+    private Animator animator;
 
     [Header("Stats")]
     [SerializeField] private float moveSpeed = 5f;
@@ -14,6 +15,7 @@ public class MovementComponent : MonoBehaviour
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
     }
 
     public void Move(Vector2 input)
@@ -21,6 +23,10 @@ public class MovementComponent : MonoBehaviour
         Vector3 move = new Vector3(input.x, 0, input.y);
         characterController.Move(move * moveSpeed * Time.deltaTime);
 
+        velocity = characterController.velocity;
+
+        animator.SetFloat("XSpeed", velocity.x);
+        animator.SetFloat("YSpeed", velocity.z);
         ApplyGravity();
     }
 
