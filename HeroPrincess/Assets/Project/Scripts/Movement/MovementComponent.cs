@@ -9,7 +9,11 @@ public class MovementComponent : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpHeight = 2f;
 
+    [SerializeField] private LayerMask groundMask;
+
     private Vector3 velocity;
+
+    private bool isGrounded;
 
     void Awake()
     {
@@ -19,7 +23,15 @@ public class MovementComponent : MonoBehaviour
 
     void Update()
     {
+        isGrounded = IsGrounded();
+        if (isGrounded )
+            Debug.Log("Grounded");
+
+        animator.SetBool("IsGrounded", isGrounded);
+
         ApplyGravity();
+
+        characterController.Move(velocity * Time.deltaTime);
     }
 
     public void Move(Vector2 input)
@@ -36,28 +48,50 @@ public class MovementComponent : MonoBehaviour
 
     void ApplyGravity()
     {
-        if (characterController.isGrounded)
+        if (isGrounded && velocity.y < 0)
         {
-            if (velocity.y < 0)
-                velocity.y = -2f; // Small negative value to keep the character grounded
-            animator.SetBool("IsGrounded", true);
-        }
-        else
-        {
-            // Apply gravity when not grounded
-            velocity.y += Physics.gravity.y * Time.deltaTime;
-            animator.SetBool("IsGrounded", false);
+            velocity.y = -10f; // Small negative value to keep the character grounded
         }
 
-        characterController.Move(velocity * Time.deltaTime);
+        velocity.y += Physics.gravity.y * Time.deltaTime;
     }
 
     public void Jump()
     {
-        if (characterController.isGrounded)
+        if (isGrounded)
         {
             animator.SetTrigger("IsJumping");
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
         }
+    }
+
+    bool IsGrounded()
+    {
+        float radius = characterController.radius * 0.9f;
+        float distance = 0.15f;
+
+        Vector3 origin = transform.position + Vector3.up * (characterController.height / 2f);
+
+        return Physics.SphereCast(
+            origin, 
+            radius, 
+            Vector3.down, 
+            out RaycastHit hit, 
+            characterController.height / 2f + distance, 
+            groundMask, 
+            QueryTriggerInteraction.Ignore
+            );
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (characterController == null)
+            return;
+        Gizmos.color = Color.red;
+        float radius = characterController.radius * 0.9f;
+        float distance = 0.15f;
+        Vector3 origin = transform.position + Vector3.up * (characterController.height / 2f);
+        Gizmos.DrawWireSphere(origin, radius);
+        Gizmos.DrawLine(origin, origin + Vector3.down * (characterController.height / 2f + distance));
     }
 }
