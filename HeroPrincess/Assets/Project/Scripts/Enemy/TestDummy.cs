@@ -2,7 +2,19 @@ using UnityEngine;
 
 public class TestDummy : MonoBehaviour, IDamageable
 {
-    [SerializeField] private float health = 100f;
+    [SerializeField] private float health;
+
+    private HealthComponent healthComponent;
+
+    private void Start()
+    {
+        healthComponent = GetComponent<HealthComponent>();
+
+        health = healthComponent.GetHealth();
+
+        Debug.Log($"Test Dummy initialized with {health} health.");
+    }
+
     public void TakeDamage(float damage)
     {
         health -= damage;
@@ -14,7 +26,6 @@ public class TestDummy : MonoBehaviour, IDamageable
     }
     private void Die()
     {
-        Debug.Log("Test Dummy has been destroyed!");
-        Destroy(gameObject);
+        healthComponent.Die();
     }
 }

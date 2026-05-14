@@ -1,11 +1,18 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : MonoBehaviour, IDamageable
 {
     private MovementComponent movementComponent;
     private CombatComponent combatComponent;
+    private HealthComponent healthComponent;
     private Animator animator;
+
+    [Header("Components")]
+    [SerializeField] private UIManager uiManager;
+
+    [Header("Stats")]
+    [SerializeField] private float maxHealth;
 
     [Header("Attacks")]
     [SerializeField] private AbilityData basicAttackData;
@@ -22,12 +29,15 @@ public class PlayerManager : MonoBehaviour
     {
         movementComponent = GetComponent<MovementComponent>();
         combatComponent = GetComponent<CombatComponent>();
+        healthComponent = GetComponent<HealthComponent>();
         animator = GetComponent<Animator>();
 
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
         attackAction = InputSystem.actions.FindAction("Attack");
         skill1Action = InputSystem.actions.FindAction("AttackSkill1");
+
+        maxHealth = healthComponent.GetMaxHealth();
     }
 
     // Update is called once per frame
@@ -37,6 +47,9 @@ public class PlayerManager : MonoBehaviour
         movementComponent.Move(moveInput);
         HandleJump();
         HandleAttack();
+        uiManager.SetHealth(healthComponent.GetHealth());
+        uiManager.SetHealthValue(healthComponent.GetHealth(), healthComponent.GetMaxHealth());
+        uiManager.SetHealthMax(healthComponent.GetMaxHealth());
     }
 
     void HandleMovement()
@@ -79,5 +92,11 @@ public class PlayerManager : MonoBehaviour
             }
             combatComponent.TryUseAbility(heavyAttackData);
         }
+    }
+
+    public void TakeDamage(float damage)
+    {
+        healthComponent.TakeDamage(damage);
+        uiManager.SetHealth(healthComponent.GetHealth());
     }
 }
