@@ -59,7 +59,7 @@ public class CombatComponent : MonoBehaviour
             return;
 
         // Detect target
-        IDamageable target = DetectHitTarget();
+        IDamageable target = DetectHitTarget(gameObject);
         if (target == null)
         {
             Debug.Log("No valid target hit.");
@@ -86,7 +86,7 @@ public class CombatComponent : MonoBehaviour
         animator.SetBool("isHeavy", false);
     }
 
-    private IDamageable DetectHitTarget()
+    private IDamageable DetectHitTarget(GameObject attacker)
     {
         if (weaponCollider != null)
         {
@@ -98,6 +98,12 @@ public class CombatComponent : MonoBehaviour
                 IDamageable damageable = hitCollider.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
+                    if(hitCollider.gameObject == attacker)
+                    {
+                        Debug.Log("Ignoring self hit on collider: " + hitCollider.name);
+                        continue;
+                    }
+
                     return damageable;
                 }
                 else
