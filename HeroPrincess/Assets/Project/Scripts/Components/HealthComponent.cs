@@ -6,8 +6,14 @@ public class HealthComponent : MonoBehaviour
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
 
+    void Awake()
+    {
+        Debug.Log("HealthComponent Awake on " + gameObject.name);
+    }
+
     void Start()
     {
+        Debug.Log("HealthComponent Start on " + gameObject.name);
         currentHealth = maxHealth;
     }
 

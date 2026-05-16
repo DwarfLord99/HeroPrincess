@@ -2,35 +2,26 @@ using UnityEngine;
 
 public class TestDummy : MonoBehaviour, IDamageable
 {
-    private float health;
-
     private HealthComponent healthComponent;
+    private DamageNumbers damageNumbers;
 
     private void Start()
     {
         healthComponent = GetComponent<HealthComponent>();
+        damageNumbers = GetComponent<DamageNumbers>();
 
-        health = healthComponent.GetHealth();
-
-        Debug.Log($"Test Dummy initialized with {health} health.");
+        Debug.Log($"Test Dummy initialized with {healthComponent.GetHealth()} health.");
     }
 
     private void Update()
     {
-        Debug.Log("Test Dummy health: " + health);
+        Debug.Log("Test Dummy health: " + healthComponent.GetHealth());
     }
 
     public void TakeDamage(float damage)
     {
-        health -= damage;
-        Debug.Log($"Test Dummy took {damage} damage. Remaining health: {health}");
-        if (health <= 0)
-        {
-            Die();
-        }
-    }
-    private void Die()
-    {
-        healthComponent.Die();
+        healthComponent.TakeDamage(damage);
+        damageNumbers.ShowDamage(damage, transform.position + Vector3.up * 2f); // Show damage above the dummy
+        Debug.Log($"Test Dummy took {damage} damage. Remaining health: {healthComponent.GetHealth()}");
     }
 }
