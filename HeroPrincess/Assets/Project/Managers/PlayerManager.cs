@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour, IDamageable
 
     [Header("Components")]
     [SerializeField] private UIManager uiManager;
+    [SerializeField] private Transform cameraTransform;
 
     [Header("Stats")]
     [SerializeField] private float maxHealth;
@@ -24,6 +25,8 @@ public class PlayerManager : MonoBehaviour, IDamageable
     private InputAction skill1Action;
 
     private Vector2 moveInput;
+
+    private bool shouldFaceMoveDirection = false;
 
     void Start()
     {
@@ -43,6 +46,12 @@ public class PlayerManager : MonoBehaviour, IDamageable
     // Update is called once per frame
     void Update()
     {
+        if (moveInput.y > 0.1f)
+            shouldFaceMoveDirection = true;
+        else if (moveInput.y < -0.1f)
+            shouldFaceMoveDirection = false;
+
+        HandleCamera();
         HandleMovement();
         movementComponent.Move(moveInput);
         HandleJump();
@@ -59,6 +68,28 @@ public class PlayerManager : MonoBehaviour, IDamageable
     {
         // Read the movement input from the Input System
         moveInput = moveAction.ReadValue<Vector2>();
+    }
+
+    void HandleCamera()
+    {
+        if (cameraTransform != null)
+        {
+            Vector3 forward = cameraTransform.forward;
+            forward.y = 0; // Keep movement on the horizontal plane
+            forward.Normalize();
+
+            Vector3 right = cameraTransform.right;
+            right.y = 0;
+            right.Normalize();
+
+            Vector3 desiredDirection = forward * moveInput.y + right * moveInput.x;
+
+            if (shouldFaceMoveDirection && desiredDirection.sqrMagnitude > 0.01f)
+            {
+                Quaternion toRotation = Quaternion.LookRotation(desiredDirection, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, Time.deltaTime * 50f);
+            }
+        }
     }
 
     void HandleJump()
