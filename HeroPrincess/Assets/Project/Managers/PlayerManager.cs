@@ -46,7 +46,10 @@ public class PlayerManager : MonoBehaviour, IDamageable
         HandleMovement();
         movementComponent.Move(moveInput);
         HandleJump();
-        HandleAttack();
+
+        if (movementComponent.isGrounded)
+            HandleAttack();
+
         uiManager.SetHealth(healthComponent.GetHealth());
         uiManager.SetHealthValue(healthComponent.GetHealth(), healthComponent.GetMaxHealth());
         uiManager.SetHealthMax(healthComponent.GetMaxHealth());

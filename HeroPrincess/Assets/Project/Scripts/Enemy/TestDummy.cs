@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TestDummy : MonoBehaviour, IDamageable
 {
-    [SerializeField] private float health;
+    private float health;
 
     private HealthComponent healthComponent;
 
@@ -13,6 +13,11 @@ public class TestDummy : MonoBehaviour, IDamageable
         health = healthComponent.GetHealth();
 
         Debug.Log($"Test Dummy initialized with {health} health.");
+    }
+
+    private void Update()
+    {
+        Debug.Log("Test Dummy health: " + health);
     }
 
     public void TakeDamage(float damage)

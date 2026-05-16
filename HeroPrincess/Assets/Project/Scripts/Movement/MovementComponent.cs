@@ -13,7 +13,7 @@ public class MovementComponent : MonoBehaviour
 
     private Vector3 velocity;
 
-    private bool isGrounded;
+    public bool isGrounded;
 
     void Awake()
     {

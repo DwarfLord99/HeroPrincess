@@ -80,6 +80,7 @@ public class CombatComponent : MonoBehaviour
 
     public void EndAttack()
     {
+        animator.ResetTrigger("Attack");
         isAttacking = false;
         currentAbility = null;
         animator.SetBool("isBasic", false);
